@@ -1,9 +1,64 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 36% 95%;
+    --foreground: 240 3% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 3% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 3% 11%;
+    --primary: 260 48% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 95%;
+    --secondary-foreground: 240 3% 11%;
+    --muted: 240 4% 95%;
+    --muted-foreground: 240 2% 44%;
+    --accent: 260 47% 96%;
+    --accent-foreground: 260 48% 35%;
+    --destructive: 4 76% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 1% 86%;
+    --input: 240 1% 86%;
+    --ring: 260 49% 59%;
+    --premium: 40 41% 59%;
+    --premium-foreground: 240 3% 11%;
+    --radius: 0.625rem;
+    --chart-1: 260 48% 35%;
+    --chart-2: 40 41% 59%;
+    --chart-3: 260 49% 50%;
+    --chart-4: 240 2% 58%;
+    --chart-5: 260 38% 77%;
+  }
+
+  .dark:root {
+    --background: 240 3% 11%;
+    --foreground: 40 36% 95%;
+    --card: 240 4% 16%;
+    --card-foreground: 40 36% 95%;
+    --popover: 240 4% 16%;
+    --popover-foreground: 40 36% 95%;
+    --primary: 260 49% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3% 23%;
+    --secondary-foreground: 40 36% 95%;
+    --muted: 240 3% 23%;
+    --muted-foreground: 240 2% 76%;
+    --accent: 260 24% 22%;
+    --accent-foreground: 260 38% 77%;
+    --destructive: 4 69% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 3% 23%;
+    --input: 240 3% 23%;
+    --ring: 260 49% 59%;
+    --premium: 40 41% 59%;
+    --premium-foreground: 240 3% 11%;
+    --chart-1: 260 49% 59%;
+    --chart-2: 40 41% 59%;
+    --chart-3: 260 40% 70%;
+    --chart-4: 240 2% 76%;
+    --chart-5: 260 24% 40%;
+  }
 }

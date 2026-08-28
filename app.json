@@ -30,7 +30,9 @@
             "backgroundColor": "#1C1C1E"
           }
         }
-      ]
+      ],
+      "@didit-protocol/sdk-react-native",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

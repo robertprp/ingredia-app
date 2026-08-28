@@ -109,6 +109,13 @@ export default function ResetPasswordScreen() {
                 <Text className="font-sans-semibold text-white">Update password</Text>
               )}
             </Button>
+            <Button
+              accessibilityLabel="Back to start"
+              className="mt-3 h-14 rounded-2xl"
+              variant="outline"
+              onPress={() => router.replace('/' as Href)}>
+              <Text className="font-sans-semibold">Back to start</Text>
+            </Button>
           </View>
         )}
       </View>

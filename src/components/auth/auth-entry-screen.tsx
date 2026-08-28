@@ -118,6 +118,7 @@ export function AuthEntryScreen({ mode }: AuthEntryScreenProps) {
         }
         return;
       }
+      console.log({ normalizedEmail, password })
 
       router.replace('/app' as Href);
     } catch {

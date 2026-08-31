@@ -34,11 +34,8 @@ export default function WelcomeScreen(): React.JSX.Element {
         </View>
         <View className="gap-2">
           <Button className="h-[52px] rounded-[14px]" onPress={() => router.push(ROUTES.login)}>
-            <Text className="text-base font-semibold">Continuar con email</Text>
+            <Text className="text-base font-semibold">Continuar</Text>
           </Button>
-          <Text className="text-center text-sm text-muted-foreground">
-            El mismo enlace sirve para iniciar sesión o crear tu cuenta.
-          </Text>
         </View>
       </View>
     </SafeAreaView>

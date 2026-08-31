@@ -16,7 +16,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import * as Linking from 'expo-linking';
 type SearchParam = string | string[] | undefined;
 
 function firstParam(param: SearchParam): string | undefined {
@@ -114,8 +114,8 @@ export function AuthEntryScreen(): React.JSX.Element {
       const { error: magicLinkError } = await authClient.signIn.magicLink({
         email: normalizedEmail,
         name: normalizedEmail.split('@')[0],
-        callbackURL: '/login',
-        errorCallbackURL: '/login',
+        callbackURL: Linking.createURL('/login'),
+        errorCallbackURL: Linking.createURL('/login'),
       });
 
       if (magicLinkError) {
@@ -149,7 +149,7 @@ export function AuthEntryScreen(): React.JSX.Element {
               Sign in or create your account
             </Text>
             <Text className="mt-4 font-sans text-lg leading-7 text-brand-ink/65">
-              Enter your email and we will send you a secure sign-in link. No password needed.
+              Enter your email and we will send you a secure sign-in link
             </Text>
 
             <View className="mt-10">
@@ -194,7 +194,7 @@ export function AuthEntryScreen(): React.JSX.Element {
           </View>
         </ScrollView>
 
-        <View className="flex-row gap-3 rounded-t-[32px] border-t border-black/5 bg-white px-5 pb-3 pt-5">
+        <View className="flex-row gap-3 rounded-t-[32px] border-t border-black/5 px-5 pb-3 pt-5">
           <Button
             accessibilityLabel="Go back"
             className="h-16 rounded-2xl px-5"

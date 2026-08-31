@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.nooveller.app",
+      "bundleIdentifier": "com.ingredia.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Ingredia uses the camera to scan ingredient labels for analysis.",
@@ -23,7 +23,7 @@
       }
     },
     "android": {
-      "package": "com.nooveller.app",
+      "package": "com.ingredia.app",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -41,13 +41,6 @@
           }
         }
       ],
-      [
-        "@didit-protocol/sdk-react-native",
-        {
-          "iosVariant": "autodetection",
-          "androidVariant": "autodetection"
-        }
-      ],
       "expo-secure-store"
     ],
     "experiments": {
@@ -60,6 +53,6 @@
         "projectId": "6ba25c17-645d-4adc-83aa-4c1f3b32ed13"
       }
     },
-    "owner": "noovellers-team"
+    "owner": "ingredias-team"
   }
 }

@@ -13,6 +13,7 @@ import { useColorScheme } from 'nativewind';
 export default function RootLayout(): React.JSX.Element {
   const { colorScheme } = useColorScheme();
   const { data: session, isPending } = authClient.useSession();
+  console.log({ session, isPending })
   const themeName = colorScheme ?? 'light';
 
   if (isPending) return <LoadingScreen />;

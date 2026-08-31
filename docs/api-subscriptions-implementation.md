@@ -492,7 +492,7 @@ Example response:
   "plans": [
     {
       "planId": "INGREDIA_PLUS_MONTHLY",
-      "productReference": "com.nooveller.ingredia.plus.monthly",
+      "productReference": "com.ingredia.plus.monthly",
       "displayPrice": null,
       "displayPriceSource": "STORE"
     }

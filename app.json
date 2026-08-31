@@ -1,15 +1,25 @@
 {
   "expo": {
-    "name": "nooveller",
-    "slug": "nooveller",
+    "name": "Ingredia",
+    "slug": "ingredia",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "nooveller",
+    "scheme": "ingredia",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "supportsTablet": false,
       "bundleIdentifier": "com.nooveller.app",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Ingredia uses the camera to scan ingredient labels for analysis.",
+        "NSMicrophoneUsageDescription": "Ingredia does not record audio while scanning ingredients.",
+        "NSPhotoLibraryUsageDescription": "Ingredia uses selected photos to analyze ingredient labels.",
+        "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
+          "D23300000045737445494420763335",
+          "A0000002471001",
+          "A0000002472001",
+          "00000000000000"
+        ]
       }
     },
     "android": {
@@ -25,13 +35,19 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F4EE",
+          "backgroundColor": "#FAF9F5",
           "dark": {
-            "backgroundColor": "#1C1C1E"
+            "backgroundColor": "#0E1712"
           }
         }
       ],
-      "@didit-protocol/sdk-react-native",
+      [
+        "@didit-protocol/sdk-react-native",
+        {
+          "iosVariant": "autodetection",
+          "androidVariant": "autodetection"
+        }
+      ],
       "expo-secure-store"
     ],
     "experiments": {

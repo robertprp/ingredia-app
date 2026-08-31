@@ -1,7 +1,8 @@
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/lib/routes';
 import { StatusBar } from 'expo-status-bar';
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
@@ -158,17 +159,11 @@ export function OnboardingCarousel() {
                 </View>
 
                 {activeIndex === SLIDES.length - 1 ? (
-                  <View className="mt-10 flex-row gap-3">
+                  <View className="mt-10">
                     <Button
-                      className="h-14 flex-1 rounded-2xl"
-                      variant="outline"
-                      onPress={() => router.push('/login' as Href)}>
-                      <Text className="font-sans-semibold">Sign in</Text>
-                    </Button>
-                    <Button
-                      className="h-14 flex-1 rounded-2xl bg-brand-purple"
-                      onPress={() => router.push('/sign-up' as Href)}>
-                      <Text className="font-sans-semibold text-white">Create account</Text>
+                      className="h-14 rounded-2xl bg-brand-purple"
+                      onPress={() => router.push(ROUTES.login)}>
+                      <Text className="font-sans-semibold text-white">Continue with email</Text>
                     </Button>
                   </View>
                 ) : (

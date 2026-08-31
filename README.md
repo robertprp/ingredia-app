@@ -1,64 +1,35 @@
-# NOOVELLER
+# Ingredia mobile
 
-NOOVELLER's Expo 57 application foundation uses Expo Router, NativeWind, and React Native Reusables.
+Expo SDK 57 scaffold for Ingredia, built with Expo Router, strict TypeScript, NativeWind v4, Tailwind CSS v3, React Native Reusables, Better Auth, and TanStack Query.
 
-## Development
+## Run locally
 
 ```bash
 npm install
-npm start
+cp .env.example .env
+npm run start
 ```
 
-`npm start` targets the custom development client. `npm run ios` and `npm run android` rebuild and launch that native client; `npm run web` launches the web app. For UI-only work in Expo Go, use `npm run start:go`—Didit verification remains unavailable there.
+Set `EXPO_PUBLIC_API_URL` to the Nest API origin. Android Emulator normally uses `http://10.0.2.2:3000`; iOS Simulator and web can use `http://localhost:3000`.
 
-## UI components
+## Structure
 
-Add React Native Reusables components through its registry:
+- `src/app`: route groups and thin screen composition
+- `src/components/ui`: source-owned React Native Reusables primitives
+- `src/components/ingredia`: Ingredia-specific reusable components
+- `src/features`: typed feature contracts, query keys, state machines, and fixtures
+- `src/services`: adapters for API, billing, camera, and storage integrations
+- `src/lib`: application-wide clients, routes, theme, and utilities
+
+The current backend exposes authentication and identity-verification endpoints. Additive, scan, analysis, entitlements, and billing screens are intentionally fixture-backed behind typed boundaries until their generated API contracts are available.
+
+## Checks
 
 ```bash
-npx @react-native-reusables/cli@latest add button
+npm run lint -- --no-cache
+npx tsc --noEmit
+npx @react-native-reusables/cli@latest doctor -y
+npx expo export --platform web
 ```
 
-Shared brand tokens live in `src/global.css`, `tailwind.config.js`, and `src/lib/theme.ts`.
-
-## Authentication
-
-The Expo client uses Better Auth with SecureStore-backed sessions. Copy `.env.example` to `.env.local` and adjust `EXPO_PUBLIC_BETTER_AUTH_URL` for the target device:
-
-- iOS Simulator and web: `http://localhost:3000`
-- Android Emulator: `http://10.0.2.2:3000`
-- Physical devices: a reachable LAN URL or HTTPS tunnel
-
-The Better Auth server must trust `nooveller://` (plus Expo development origins), configure Google and Apple under `socialProviders`, and provide `emailAndPassword.sendResetPassword` for the forgot-password flow.
-
-## Identity verification (Didit)
-
-The app uses `@didit-protocol/sdk-react-native` 4.7.3 with its Expo config plugin. NFC is enabled and the generated native projects include the full Didit SDK. Didit's NFC support requires iOS 15.0+, while Expo 57 itself sets this app's effective iOS minimum to 16.4. Disable NFC in `app.json` to remove Didit's NFC dependencies and capabilities (this does not lower Expo 57's own minimum):
-
-```json
-[
-  "@didit-protocol/sdk-react-native",
-  { "iosNfcEnabled": false, "androidNfcEnabled": false }
-]
-```
-
-The native SDK is unavailable in Expo Go. Adding or upgrading Didit requires a fresh native build; reloading Metro is not sufficient. Use the existing EAS development profile or make a local development build after installing dependencies:
-
-```bash
-eas build --profile development --platform ios
-eas build --profile development --platform android
-
-# Or build locally:
-npx expo run:ios
-npx expo run:android
-```
-
-The mobile app calls `POST /api/verification/start` on `EXPO_PUBLIC_BETTER_AUTH_URL`. Override the complete public endpoint URL with `EXPO_PUBLIC_DIDIT_SESSION_URL` when it is hosted elsewhere. The request includes the signed-in Better Auth cookie and an empty JSON body. The server must:
-
-1. Require an authenticated user and derive `vendor_data` from that user's stable server-side ID.
-2. Call `POST https://verification.didit.me/v3/session/` with `DIDIT_API_KEY` and `DIDIT_WORKFLOW_ID` from server-only environment variables.
-3. Persist the Didit `session_id` to user association and return only `{ "session_id": "...", "session_token": "..." }`.
-4. Forward Didit rate-limit responses appropriately, including `Retry-After` on HTTP 429.
-5. Verify Didit's webhook signature, persist the final decision, and grant access from that server-side decision. The status returned by the mobile SDK is immediate UI feedback, not the authorization source of truth.
-
-Never add `DIDIT_API_KEY` or `DIDIT_WORKFLOW_ID` to an `EXPO_PUBLIC_*` variable or send either value to the device.
+Before a production auth build, add `ingredia://` and `ingredia://*` to the backend Better Auth trusted origins.

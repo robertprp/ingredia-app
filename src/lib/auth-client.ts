@@ -1,28 +1,36 @@
-import { expoClient } from '@better-auth/expo/client';
+import { expoClient, getSetCookie, storageAdapter } from '@better-auth/expo/client';
+import { magicLinkClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
-import { usernameClient, organizationClient } from "better-auth/client/plugins"
 
+import { mobileConfig } from '@/config/mobile-config';
 
-const developmentURL = Platform.select({
-  android: 'http://10.0.2.2:3000',
-  default: 'http://localhost:3000',
-});
+const AUTH_STORAGE_PREFIX = 'ingredia';
+const AUTH_COOKIE_STORAGE_KEY = `${AUTH_STORAGE_PREFIX}_cookie`;
 
-export const betterAuthURL = process.env.EXPO_PUBLIC_BETTER_AUTH_URL ?? developmentURL;
+export const betterAuthURL = mobileConfig.apiUrl;
 
 export const authClient = createAuthClient({
   baseURL: betterAuthURL,
   plugins: [
-    usernameClient(),
-    organizationClient(),
     expoClient({
-      scheme: 'nooveller',
-      storagePrefix: 'nooveller',
+      scheme: 'ingredia',
+      storagePrefix: AUTH_STORAGE_PREFIX,
       storage: SecureStore,
-      // The backend overrides the session cookie name to `noveller.session`.
-      cookiePrefix: 'noveller',
     }),
+    magicLinkClient(),
   ],
 });
+
+/**
+ * Better Auth's Expo server plugin appends the native session cookie to the
+ * magic-link callback URL. Persist it in the same store used by expoClient so
+ * subsequent session requests are authenticated.
+ */
+export async function persistMagicLinkSessionCookie(setCookieHeader: string): Promise<void> {
+  const storage = storageAdapter(SecureStore);
+  const currentCookie = await storage.getItemAsync(AUTH_COOKIE_STORAGE_KEY);
+  const nextCookie = getSetCookie(setCookieHeader, currentCookie ?? undefined);
+
+  await storage.setItemAsync(AUTH_COOKIE_STORAGE_KEY, nextCookie);
+}

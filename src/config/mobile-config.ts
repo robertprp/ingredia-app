@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 const developmentApiUrl = Platform.select({
-  android: 'http://10.0.2.2:3000',
-  default: 'http://localhost:3000',
+  android: 'https://sneezing-surprise-syrup.ngrok-free.dev',
+  default: 'https://sneezing-surprise-syrup.ngrok-free.dev',
 });
 
 export const mobileConfig = {

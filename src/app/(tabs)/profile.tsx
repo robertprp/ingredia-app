@@ -21,13 +21,27 @@ import { authClient } from '@/lib/auth-client';
 import { ROUTES } from '@/lib/routes';
 import { Baby, Bell, ChevronRight, Crown, HelpCircle, Lock, LogOut, Trash2 } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiQueryKeys } from '@/services/api/query-keys';
+import { apiErrorMessage, ingrediaApi } from '@/services/api/ingredia-api';
 
 export default function ProfileScreen(): React.JSX.Element {
   const { data: session } = authClient.useSession();
-  const [pregnancyMode, setPregnancyMode] = useState(false);
-  const [riskAlerts, setRiskAlerts] = useState(true);
+  const queryClient = useQueryClient();
+  const preferences = useQuery({ queryKey: apiQueryKeys.preferences, queryFn: ingrediaApi.getPreferences });
+  const entitlements = useQuery({ queryKey: apiQueryKeys.entitlements, queryFn: ingrediaApi.getEntitlements });
+  const subscription = useQuery({ queryKey: [...apiQueryKeys.billing, 'subscription'], queryFn: ingrediaApi.getSubscription });
+  const updatePreference = useMutation({
+    mutationFn: ingrediaApi.updatePreferences,
+    onSuccess: (data) => queryClient.setQueryData(apiQueryKeys.preferences, data),
+    onError: (error) => Alert.alert('No se pudo guardar', apiErrorMessage(error)),
+  });
+  const deleteAccount = useMutation({
+    mutationFn: ingrediaApi.requestAccountDeletion,
+    onSuccess: ({ scheduledAt }) => Alert.alert('Eliminación solicitada', `Tu cuenta está programada para eliminarse el ${new Date(scheduledAt).toLocaleDateString('es-ES')}.`),
+    onError: (error) => Alert.alert('No se pudo solicitar', apiErrorMessage(error)),
+  });
   const displayName = session?.user.name || 'Cuenta Ingredia';
   const initials = displayName.slice(0, 2).toUpperCase();
 
@@ -45,12 +59,12 @@ export default function ProfileScreen(): React.JSX.Element {
       </View>
 
       <ProfileSection title="Preferencias de salud">
-        <PreferenceRow icon={Baby} label="Modo embarazo" description="Aplica criterios de presentación más estrictos." checked={pregnancyMode} onCheckedChange={setPregnancyMode} />
-        <PreferenceRow icon={Bell} label="Alertas de riesgo" description="Destaca resultados que requieren atención." checked={riskAlerts} onCheckedChange={setRiskAlerts} />
+        <PreferenceRow icon={Baby} label="Modo embarazo" description={entitlements.data?.personalizedPregnancyMode ? 'Aplica criterios de presentación más estrictos.' : 'Disponible con Ingredia Plus.'} checked={preferences.data?.pregnancyMode ?? false} disabled={!entitlements.data?.personalizedPregnancyMode || updatePreference.isPending} onCheckedChange={(pregnancyMode) => updatePreference.mutate({ pregnancyMode })} />
+        <PreferenceRow icon={Bell} label="Alertas de riesgo" description="Destaca resultados que requieren atención." checked={preferences.data?.riskAlerts ?? true} disabled={updatePreference.isPending} onCheckedChange={(riskAlerts) => updatePreference.mutate({ riskAlerts })} />
       </ProfileSection>
 
       <ProfileSection title="Suscripción">
-        <NavigationRow icon={Crown} label="Ingredia Plus" detail="Plan gratuito" onPress={() => router.push(ROUTES.subscription)} />
+        <NavigationRow icon={Crown} label="Ingredia Plus" detail={subscription.data?.status === 'ACTIVE' || subscription.data?.status === 'TRIALING' ? 'Plan activo' : 'Plan gratuito'} onPress={() => router.push(ROUTES.subscription)} />
       </ProfileSection>
 
       <ProfileSection title="Ayuda y privacidad">
@@ -77,12 +91,12 @@ export default function ProfileScreen(): React.JSX.Element {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar tu cuenta?</AlertDialogTitle>
             <AlertDialogDescription>
-              La eliminación se conectará al endpoint protegido en la fase de lógica. No se realizará ninguna acción ahora.
+              Tu acceso se desactivará y la cuenta se eliminará tras el periodo de seguridad indicado por Ingredia.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel><Text>Cancelar</Text></AlertDialogCancel>
-            <AlertDialogAction><Text>Entendido</Text></AlertDialogAction>
+            <AlertDialogAction onPress={() => deleteAccount.mutate()}><Text>Solicitar eliminación</Text></AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -99,7 +113,7 @@ function ProfileSection({ title, children }: { title: string; children: React.Re
   );
 }
 
-function PreferenceRow({ icon: RowIcon, label, description, checked, onCheckedChange }: { icon: typeof Baby; label: string; description: string; checked: boolean; onCheckedChange: (checked: boolean) => void }): React.JSX.Element {
+function PreferenceRow({ icon: RowIcon, label, description, checked, disabled, onCheckedChange }: { icon: typeof Baby; label: string; description: string; checked: boolean; disabled?: boolean; onCheckedChange: (checked: boolean) => void }): React.JSX.Element {
   return (
     <View className="min-h-[76px] flex-row items-center gap-3 border-b border-border px-4 py-3 last:border-b-0">
       <Icon as={RowIcon} className="text-primary" size={20} />
@@ -107,7 +121,7 @@ function PreferenceRow({ icon: RowIcon, label, description, checked, onCheckedCh
         <Text className="font-semibold">{label}</Text>
         <Text className="text-xs leading-4 text-muted-foreground">{description}</Text>
       </View>
-      <Switch accessibilityLabel={label} checked={checked} hitSlop={10} onCheckedChange={onCheckedChange} />
+      <Switch accessibilityLabel={label} checked={checked} disabled={disabled} hitSlop={10} onCheckedChange={onCheckedChange} />
     </View>
   );
 }

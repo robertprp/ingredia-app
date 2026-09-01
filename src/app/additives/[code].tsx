@@ -6,20 +6,31 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { findAdditive } from '@/features/additives/catalog';
+import { apiQueryKeys } from '@/services/api/query-keys';
+import { ingrediaApi } from '@/services/api/ingredia-api';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Baby, FileSearch } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
 export default function AdditiveDetailScreen(): React.JSX.Element {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const additive = findAdditive(code);
+  const additiveQuery = useQuery({
+    queryKey: apiQueryKeys.additive(code),
+    queryFn: () => ingrediaApi.getAdditive(code),
+    enabled: Boolean(code),
+  });
+  const additive = additiveQuery.data;
+
+  if (additiveQuery.isPending) {
+    return <ScrollableScreen><Text className="text-center text-muted-foreground">Cargando aditivo…</Text></ScrollableScreen>;
+  }
 
   if (!additive) {
     return (
       <ScrollableScreen>
         <Button className="size-11 rounded-full" size="icon" variant="outline" onPress={() => router.back()}><Icon as={ArrowLeft} /></Button>
-        <AppHeader title="Aditivo no encontrado" description="No existe información local para este código." />
+        <AppHeader title="Aditivo no encontrado" description="No se pudo obtener información para este código." />
       </ScrollableScreen>
     );
   }
@@ -52,8 +63,8 @@ export default function AdditiveDetailScreen(): React.JSX.Element {
       </Accordion>
       <View className="gap-3 rounded-2xl border border-border bg-card p-4">
         <View className="flex-row items-center gap-2"><Icon as={FileSearch} className="text-evidence" size={20} /><Text className="font-semibold">Fuentes y revisión</Text></View>
-        <Text className="text-sm leading-5 text-muted-foreground">{additive.sources.join(' · ')}</Text>
-        <Text className="text-xs text-muted-foreground">Última revisión: {additive.lastReviewedAt}</Text>
+        <Text className="text-sm leading-5 text-muted-foreground">{additive.sources.length ? `También conocido como: ${additive.sources.join(' · ')}` : 'Información curada por Ingredia.'}</Text>
+        <Text className="text-xs text-muted-foreground">Última revisión: {new Date(additive.lastReviewedAt).toLocaleDateString('es-ES')}</Text>
       </View>
       <HealthDisclaimer />
     </ScrollableScreen>

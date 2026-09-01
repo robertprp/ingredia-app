@@ -13,6 +13,15 @@ export enum PregnancyGuidance {
   INSUFFICIENT_EVIDENCE = 'INSUFFICIENT_EVIDENCE',
 }
 
+export enum ToxicityLevel {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  VERY_HIGH = 'VERY_HIGH',
+}
+
+export type PregnancyStatus = 'SUITABLE' | 'CAUTION' | 'NOT_SUITABLE' | 'INSUFFICIENT_EVIDENCE';
+
 export interface AdditiveSummary {
   code: string;
   name: string;
@@ -30,4 +39,19 @@ export interface AdditiveDetails extends AdditiveSummary {
   pregnancyNotes: string;
   sources: readonly string[];
   lastReviewedAt: string;
+}
+
+export interface AdditivePage {
+  items: AdditiveSummary[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export function riskFromToxicity(level: ToxicityLevel): ProductRiskLevel {
+  return level === ToxicityLevel.MEDIUM ? ProductRiskLevel.CAUTION : ProductRiskLevel[level];
+}
+
+export function guidanceFromPregnancy(status: PregnancyStatus): PregnancyGuidance {
+  if (status === 'NOT_SUITABLE') return PregnancyGuidance.AVOID;
+  return PregnancyGuidance[status];
 }

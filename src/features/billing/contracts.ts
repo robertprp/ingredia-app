@@ -1,32 +1,41 @@
-export enum BillingChannel {
-  STRIPE = 'STRIPE',
-  APP_STORE = 'APP_STORE',
-  GOOGLE_PLAY = 'GOOGLE_PLAY',
-  EXTERNAL_WEB = 'EXTERNAL_WEB',
-  UNAVAILABLE = 'UNAVAILABLE',
-}
+export type SubscriptionProvider = 'STRIPE' | 'APPLE' | 'GOOGLE_PLAY';
+export type SubscriptionStatus = 'FREE' | 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
 
 export interface BillingEligibility {
-  channel: BillingChannel;
-  displayPrice: string;
-  billingIntervalLabel: string;
-  canRestore: boolean;
+  policyVersion: string;
+  purchaseAllowed: boolean;
+  purchaseProvider: SubscriptionProvider | null;
+  purchaseAction: 'NONE' | 'STRIPE_CHECKOUT' | 'APP_STORE_PURCHASE' | 'GOOGLE_PLAY_PURCHASE';
+  restoreAction: 'NONE' | 'APP_STORE_RESTORE' | 'GOOGLE_PLAY_RESTORE';
+  managementAction: 'NONE' | 'STRIPE_PORTAL' | 'APP_STORE_SUBSCRIPTIONS' | 'GOOGLE_PLAY_SUBSCRIPTIONS' | 'CONTACT_SUPPORT';
+  reason: 'ELIGIBLE' | 'CHANNEL_MISMATCH' | 'EXISTING_SUBSCRIPTION';
+}
+
+export interface BillingPlan {
+  id: string;
+  name: string;
+  localizedPrice: string | null;
+  billingPeriod: 'MONTHLY' | 'YEARLY';
+  trialDays: number;
+  capabilities: string[];
+  purchasable: boolean;
+  providerReferences: { provider: SubscriptionProvider; productId: string }[];
+}
+
+export interface UserSubscription {
+  status: SubscriptionStatus;
+  provider: SubscriptionProvider | null;
+  planId: string | null;
+  renewsAt: string | null;
+  currentPeriodEndsAt: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
 export interface IngrediaEntitlements {
+  scansRemaining: number | null;
   unlimitedScans: boolean;
   productComparison: boolean;
   personalizedPregnancyMode: boolean;
   completeHistory: boolean;
-  monthlyScansRemaining: number;
+  monthlyScansRemaining: number | null;
 }
-
-export type StripeCheckoutState =
-  | { status: 'IDLE' }
-  | { status: 'CREATING_SUBSCRIPTION' }
-  | { status: 'INITIALIZING_PAYMENT_SHEET' }
-  | { status: 'PRESENTING_PAYMENT_SHEET' }
-  | { status: 'AWAITING_SERVER_CONFIRMATION'; subscriptionId: string }
-  | { status: 'ACTIVE'; subscriptionId: string }
-  | { status: 'CANCELED' }
-  | { status: 'FAILURE'; message: string };

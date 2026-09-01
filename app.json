@@ -41,7 +41,15 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Ingredia accede a tus fotos para analizar las etiquetas que elijas.",
+          "cameraPermission": "Ingredia usa la cámara para fotografiar y analizar etiquetas de ingredientes.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

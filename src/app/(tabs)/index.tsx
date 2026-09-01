@@ -6,19 +6,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { ProductRiskLevel } from '@/features/additives/contracts';
 import { analysisRoute, ROUTES } from '@/lib/routes';
 import { BookOpen, ChevronRight, ScanLine } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { ingrediaApi } from '@/services/api/ingredia-api';
+import { apiQueryKeys } from '@/services/api/query-keys';
 
 export default function HomeScreen(): React.JSX.Element {
+  const entitlements = useQuery({ queryKey: apiQueryKeys.entitlements, queryFn: ingrediaApi.getEntitlements });
+  const analyses = useQuery({ queryKey: apiQueryKeys.analyses('RECENT'), queryFn: () => ingrediaApi.listAnalyses('RECENT') });
+  const latest = analyses.data?.items[0];
+  const scanDescription = entitlements.data?.unlimitedScans
+    ? 'Tienes escaneos ilimitados con Ingredia Plus.'
+    : `Te quedan ${entitlements.data?.monthlyScansRemaining ?? 0} escaneos este mes.`;
+
   return (
     <ScrollableScreen>
       <AppHeader
         eyebrow="Buenos días"
         title="¿Qué quieres revisar?"
-        description="Te quedan 3 escaneos gratuitos este mes."
+        description={scanDescription}
       />
 
       <Card className="gap-0 overflow-hidden border-0 bg-primary py-0">
@@ -42,19 +51,19 @@ export default function HomeScreen(): React.JSX.Element {
 
       <View className="gap-3">
         <SectionHeader title="Actividad reciente" detail="Último análisis" />
-        <Pressable
+        {latest ? <Pressable
           accessibilityRole="button"
           className="rounded-2xl border border-border bg-card p-4 active:bg-muted"
-          onPress={() => router.push(analysisRoute('demo'))}>
+          onPress={() => router.push(analysisRoute(latest.id))}>
           <View className="flex-row items-start justify-between gap-4">
             <View className="flex-1 gap-2">
-              <Text className="text-lg font-semibold">Salsa de tomate</Text>
-              <Text className="text-sm text-muted-foreground">3 aditivos detectados · Hoy</Text>
-              <RiskBadge level={ProductRiskLevel.CAUTION} />
+              <Text className="text-lg font-semibold">{latest.productName}</Text>
+              <Text className="text-sm text-muted-foreground">{latest.additiveCount} aditivos · {new Date(latest.createdAt).toLocaleDateString('es-ES')}</Text>
+              <RiskBadge level={latest.riskLevel} />
             </View>
             <Icon as={ChevronRight} className="text-muted-foreground" size={21} />
           </View>
-        </Pressable>
+        </Pressable> : <Text className="text-sm text-muted-foreground">Aún no tienes análisis. Escanea una etiqueta para empezar.</Text>}
       </View>
 
       <Pressable

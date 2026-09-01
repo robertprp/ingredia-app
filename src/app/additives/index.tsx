@@ -3,20 +3,22 @@ import { AppHeader } from '@/components/ingredia/app-header';
 import { ScrollableScreen } from '@/components/ingredia/screen';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
-import { ADDITIVE_CATALOG } from '@/features/additives/catalog';
+import { Text } from '@/components/ui/text';
 import { additiveRoute } from '@/lib/routes';
+import { apiQueryKeys } from '@/services/api/query-keys';
+import { ingrediaApi } from '@/services/api/ingredia-api';
+import { useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 export default function AdditiveCatalogScreen(): React.JSX.Element {
   const [search, setSearch] = useState('');
-  const normalizedSearch = search.trim().toLowerCase();
-  const additives = useMemo(
-    () => ADDITIVE_CATALOG.filter((item) => `${item.code} ${item.name}`.toLowerCase().includes(normalizedSearch)),
-    [normalizedSearch]
-  );
+  const additivesQuery = useQuery({
+    queryKey: apiQueryKeys.additives(search.trim()),
+    queryFn: () => ingrediaApi.listAdditives(search),
+  });
 
   return (
     <ScrollableScreen>
@@ -31,13 +33,16 @@ export default function AdditiveCatalogScreen(): React.JSX.Element {
         </Pressable>
       </View>
       <View className="gap-3">
-        {additives.map((additive) => (
+        {additivesQuery.isPending ? <Text className="text-center text-muted-foreground">Cargando catálogo…</Text> : null}
+        {additivesQuery.isError ? <Text className="text-center text-destructive">No se pudo cargar el catálogo.</Text> : null}
+        {additivesQuery.data?.items.map((additive) => (
           <AdditiveListItem
             additive={additive}
             key={additive.code}
             onPress={() => router.push(additiveRoute(additive.code))}
           />
         ))}
+        {additivesQuery.data?.items.length === 0 ? <Text className="text-center text-muted-foreground">No se encontraron aditivos.</Text> : null}
       </View>
     </ScrollableScreen>
   );
